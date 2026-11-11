@@ -84,7 +84,9 @@ lemma prod_one_sub_inv_ge {η : ℝ} (hη : 0 < η) :
       exact_mod_cast (Nat.prime_of_mem_primeFactors hp).pos
     have hdvd : (∏ p ∈ n.primeFactors, p) ≤ n :=
       Nat.le_of_dvd (Nat.pos_of_ne_zero hn) (Nat.prod_primeFactors_dvd n)
-    have hdvd' : (∏ p ∈ n.primeFactors, (p : ℝ)) ≤ n := by exact_mod_cast hdvd
+    have hdvd' : (∏ p ∈ n.primeFactors, (p : ℝ)) ≤ n := by
+      have := (Nat.cast_le (α := ℝ)).mpr hdvd
+      simpa [Nat.cast_prod] using this
     exact Real.rpow_le_rpow_of_nonpos hpos hdvd' (by linarith)
   have h5 : 0 ≤ (n : ℝ) ^ (-η) := Real.rpow_nonneg (Nat.cast_nonneg n) _
   calc (1 / 2 : ℝ) ^ P * (n : ℝ) ^ (-η)

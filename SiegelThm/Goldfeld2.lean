@@ -60,18 +60,18 @@ lemma norm_taylor_term_le (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : p
       ≤ (n ! : ℝ)⁻¹ * ((2 - β) ^ n *
           (n ! * (4000 * ((N₁ : ℝ) * N₂) ^ 2) / (3 / 2) ^ n)) := by gcongr
     _ = 4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ n := by
-        rw [div_pow, div_pow]
+        rw [show (2 * (2 - β) / 3) ^ n = 2 ^ n * (2 - β) ^ n / 3 ^ n by rw [div_pow, mul_pow],
+          div_pow]
         field_simp
-        ring
+        try ring
 
 /-- Re of the Taylor terms, in terms of the derivatives of the L-series. -/
 lemma re_taylor_term (β : ℝ) (n : ℕ) :
     ((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2).re =
-      (2 - β) ^ n * (((-1) ^ n * iteratedDeriv n (LSeries ↗(coeff χ₁ χ₂)) 2).re / n ! -
-        (P χ₁ χ₂ 1).re) := by
-  rw [taylor_term_eq, re_ofReal_mul, sub_re]
-  congr 2
-  rw [show ((n ! : ℂ))⁻¹ = (((n ! : ℝ))⁻¹ : ℝ) by push_cast; rfl, re_ofReal_mul]
+      (2 - β) ^ n * (((-1) ^ n * iteratedDeriv n (LSeries ↗(coeff χ₁ χ₂)) 2).re /
+        (n ! : ℝ) - (P χ₁ χ₂ 1).re) := by
+  rw [taylor_term_eq, re_ofReal_mul, sub_re,
+    show ((n ! : ℂ))⁻¹ = (((n ! : ℝ))⁻¹ : ℝ) by simp, re_ofReal_mul]
   ring
 
 /-- The main inequality: `Re F(β) ≥ 1 - ‖λ‖ (2-β)^M / (1-β) - 16000 Q² (3/4)^M`. -/
@@ -121,7 +121,7 @@ lemma re_F_ge (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar χ�
       simp only [pow_zero, one_mul, iteratedDeriv_zero, Nat.factorial_zero, Nat.cast_one,
         div_one]
       linarith
-    · have : 0 ≤ ((-1) ^ n * iteratedDeriv n (LSeries ↗(coeff χ₁ χ₂)) 2).re / n ! :=
+    · have : 0 ≤ ((-1) ^ n * iteratedDeriv n (LSeries ↗(coeff χ₁ χ₂)) 2).re / (n ! : ℝ) :=
         div_nonneg hDre hfac.le
       nlinarith
   -- split the sum at `M`
@@ -132,7 +132,7 @@ lemma re_F_ge (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar χ�
     have h1 := Finset.sum_le_sum fun n (_ : n ∈ range M) => hr_head n
     have h2 : ∑ n ∈ range M, ((if n = 0 then (1 : ℝ) else 0) - (2 - β) ^ n * (P χ₁ χ₂ 1).re) =
         1 - (P χ₁ χ₂ 1).re * ∑ n ∈ range M, (2 - β) ^ n := by
-      rw [Finset.sum_sub_distrib, Finset.sum_ite_eq', if_pos (mem_range.mpr (by omega)),
+      rw [Finset.sum_sub_distrib, Finset.sum_ite_eq', if_pos (Finset.mem_range.mpr (by omega)),
         ← Finset.sum_mul]
       ring
     linarith
@@ -209,7 +209,7 @@ theorem goldfeld (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar �
   have hQ1 : 1 ≤ Q2 := by
     have h1 : (1 : ℝ) ≤ N₁ := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne N₁)
     have h2 : (1 : ℝ) ≤ N₂ := by exact_mod_cast Nat.one_le_iff_ne_zero.mpr (NeZero.ne N₂)
-    rw [hQ2]; nlinarith
+    rw [hQ2]; exact one_le_pow₀ (one_le_mul_of_one_le_of_one_le h1 h2)
   set T : ℝ := 32000 * Q2 with hT
   have hex : ∃ M : ℕ, T ≤ (4 / 3 : ℝ) ^ M := by
     obtain ⟨n, hn⟩ := pow_unbounded_of_one_lt T (by norm_num : (1 : ℝ) < 4 / 3)

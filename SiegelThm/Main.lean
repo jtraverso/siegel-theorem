@@ -210,7 +210,12 @@ lemma P_pos_of_no_zero {χ₁ : DirichletCharacter ℂ N₁} {χ : DirichletChar
         LFunction (prodChar χ₁ χ) ((2 : ℝ) : ℂ) = P χ₁ χ ((2 : ℝ) : ℂ) from rfl, hP2] at hco
     rw [hco] at hA
     have hZre : LSeries 1 ((2 : ℝ) : ℂ) = ((LSeries 1 ((2 : ℝ) : ℂ)).re : ℂ) := by
-      apply Complex.ext <;> simp [(Complex.lt_def.mp hZ).2.symm]
+      have him : (LSeries 1 ((2 : ℝ) : ℂ)).im = 0 := by
+        have := (Complex.lt_def.mp hZ).2
+        rw [← this]; rfl
+      apply Complex.ext
+      · rw [ofReal_re]
+      · rw [ofReal_im]; exact him
     rw [hZre, ← ofReal_mul, zero_lt_real] at hA
     have hZ' : 0 < (LSeries 1 ((2 : ℝ) : ℂ)).re := by
       have := (Complex.lt_def.mp hZ).1; simpa using this

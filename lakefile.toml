@@ -1,0 +1,24 @@
+name = "siegel"
+version = "0.1.0"
+defaultTargets = ["SiegelThm", "SiegelThmChallenge", "SiegelThmSolution"]
+requiresModuleSystem = true
+
+[leanOptions]
+relaxedAutoImplicit = false
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+rev = "v4.35.0-rc3"
+
+[[lean_lib]]
+name = "SiegelThm"
+globs = ["SiegelThm.+"]
+
+[[lean_lib]]
+name = "SiegelThmChallenge"
+roots = ["SiegelThmChallenge"]
+
+[[lean_lib]]
+name = "SiegelThmSolution"
+roots = ["SiegelThmSolution"]

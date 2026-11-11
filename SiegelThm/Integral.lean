@@ -24,7 +24,7 @@ representation of `L(s, χ)` on `Re s > 0` (target 2) and bounds for `L(s, χ)`.
 
 open MeasureTheory Set Complex Filter Asymptotics Topology
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 /-- `J g s = ∫_{t>1} g(t) t^{-(s+1)} dt`. -/
 noncomputable def J (g : ℝ → ℂ) (s : ℂ) : ℂ :=
@@ -87,10 +87,7 @@ lemma J_eq_mellin (g : ℝ → ℂ) (s : ℂ) : J g s = mellin ((Ioi (1 : ℝ)).
   rw [h1, setIntegral_indicator measurableSet_Ioi, Ioi_inter_Ioi, sup_eq_max,
     max_eq_right zero_le_one]
   refine setIntegral_congr_fun measurableSet_Ioi fun t _ => ?_
-  simp only [smul_eq_mul]
-  rw [mul_comm]
-  congr 2
-  ring
+  rw [smul_eq_mul, show -s - 1 = -(s + 1) by ring, mul_comm]
 
 /-- `J g` is holomorphic on `Re s > 0` for bounded measurable `g`. -/
 lemma differentiableAt_J {g : ℝ → ℂ} (hg : Measurable g) {B : ℝ} (hB : ∀ t, ‖g t‖ ≤ B)
@@ -215,4 +212,4 @@ lemma norm_LFunction_one_le {χ : DirichletCharacter ℂ N} (hχ : χ ≠ 1) {η
     (s := 1) (by simp; linarith)
   simpa using this
 
-end SiegelThm
+end SiegelThmLib

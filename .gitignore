@@ -3,3 +3,4 @@
 *.ilean
 .env
 .env.*
+build.log

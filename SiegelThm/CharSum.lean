@@ -18,7 +18,7 @@ public import Mathlib.NumberTheory.LSeries.DirichletContinuation
 
 open Finset
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 variable {N : ℕ} [NeZero N]
 
@@ -40,8 +40,8 @@ lemma sum_range_shift_eq_zero {χ : DirichletCharacter ℂ N} (hχ : χ ≠ 1) (
     refine Finset.sum_congr rfl fun k _ => ?_
     simp only [Nat.cast_add]
   rw [h1, sum_range_natCast_eq_sum_univ]
-  rw [Equiv.sum_comp (Equiv.addLeft (a : ZMod N)) (fun x => χ x)]
-  exact MulChar.sum_eq_zero_of_ne_one hχ
+  exact (Equiv.sum_comp (Equiv.addLeft (a : ZMod N)) (fun x => χ x)).trans
+    (MulChar.sum_eq_zero_of_ne_one hχ)
 
 /-- Partial sums as a sum over `range`. -/
 lemma sum_Icc_eq_sum_range (χ : DirichletCharacter ℂ N) (M : ℕ) :
@@ -86,4 +86,4 @@ lemma val_eq_ofReal_re {χ : DirichletCharacter ℂ N} (hχ : χ ^ 2 = 1) (a : Z
     χ a = ((χ a).re : ℂ) := by
   rcases val_cases hχ a with h | h | h <;> simp [h]
 
-end SiegelThm
+end SiegelThmLib

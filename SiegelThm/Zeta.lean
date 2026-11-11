@@ -19,7 +19,7 @@ and real `χ`.
 
 open MeasureTheory Set Complex Filter Asymptotics Topology
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 /-- `J` of a real-valued function at a real point is real. -/
 lemma J_ofReal (g : ℝ → ℝ) (β : ℝ) :
@@ -30,7 +30,7 @@ lemma J_ofReal (g : ℝ → ℝ) (β : ℝ) :
   simp only
   rw [ofReal_mul, ofReal_cpow ht']
   push_cast
-  ring_nf
+  try ring
 
 /-- `fract`, as a complex function. -/
 noncomputable abbrev fr (t : ℝ) : ℂ := (Int.fract t : ℂ)
@@ -94,6 +94,8 @@ lemma LSeries_one_eq {s : ℂ} (hs : 1 < s.re) : LSeries 1 s = 1 / (s - 1) + Hz 
     push_cast
     ring
   rw [hcongr, integral_sub hint1 hint2, integral_Ioi_cpow_of_lt (by simp; linarith) one_pos]
+  have hs2 : -s + 1 ≠ 0 := by
+    intro h; apply hs1; linear_combination -h
   rw [Hz, J]
   simp only [ofReal_one, one_cpow]
   field_simp
@@ -105,7 +107,7 @@ lemma Hz_real {β : ℝ} (hβ : 0 < β) : ∃ x : ℝ, Hz β = x ∧ x ≤ 1 := 
   refine ⟨1 - β * ∫ t in Ioi (1 : ℝ), Int.fract t * t ^ (-(β + 1)), ?_, ?_⟩
   · rw [Hz]
     have : J fr β = J (fun t => ((Int.fract t : ℝ) : ℂ)) β := rfl
-    rw [this, hJ]; push_cast; ring
+    rw [this, hJ]; push_cast; try ring
   · have : 0 ≤ ∫ t in Ioi (1 : ℝ), Int.fract t * t ^ (-(β + 1)) := by
       refine setIntegral_nonneg measurableSet_Ioi fun t ht => ?_
       exact mul_nonneg (Int.fract_nonneg t) (Real.rpow_nonneg (by linarith [mem_Ioi.mp ht]) _)
@@ -129,4 +131,4 @@ lemma LFunction_real {χ : DirichletCharacter ℂ N} (hχ : χ ≠ 1) (hχ2 : χ
   rw [this, J_ofReal]
   exact ⟨_, (ofReal_mul _ _).symm⟩
 
-end SiegelThm
+end SiegelThmLib

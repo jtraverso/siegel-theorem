@@ -22,7 +22,7 @@ open ArithmeticFunction DirichletCharacter LSeries Finset
 
 open scoped ComplexOrder
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 /-- Value of a character of lower level after `changeLevel`, at a natural number. -/
 lemma changeLevel_natCast {M L : ℕ} (h : M ∣ L) (χ : DirichletCharacter ℂ M) (n : ℕ) :
@@ -87,7 +87,7 @@ lemma local_nonneg {u v : ℂ} (hv : v = 0 ∨ v = 1 ∨ v = -1)
     (hu : u = 0 ∨ u = 1 ∨ (u = -1 ∧ v = -1)) (j : ℕ) :
     0 ≤ ∑ t ∈ range (j + 1), u ^ t * (u * v) ^ (j - t) := by
   rcases hu with rfl | rfl | ⟨rfl, rfl⟩
-  · exact sum_nonneg fun t _ => mul_nonneg (pow_nonneg le_rfl t) (by simp)
+  · exact sum_nonneg fun t _ => mul_nonneg (pow_nonneg le_rfl t) (pow_nonneg (by simp) _)
   · simp only [one_pow, one_mul]
     have := sum_range_reflect (fun t => v ^ t) (j + 1)
     simp only [add_tsub_cancel_right] at this
@@ -143,7 +143,7 @@ lemma coeff_prime_pow_nonneg {χ₁ : DirichletCharacter ℂ N₁} {χ₂ : Diri
     have := local_nonneg hx hcase (k - i)
     simpa only [mul_comm (χ₂ p) (χ₁ p)] using this
   · have hx' : χ₁ p = 0 ∨ χ₁ p = 1 ∨ (χ₁ p = -1 ∧ χ₂ p = -1) := by
-      rcases hx with h | h | h <;> rcases hy with h' | h' | h' <;> simp_all
+      rcases hx with h | h | h <;> rcases hy with h' | h' | h' <;> norm_num [h, h'] at hcase ⊢
     rw [coeff_eq', mul_apply_prime_pow _ _ hp]
     refine sum_nonneg fun i _ => mul_nonneg (zetaMul_nonneg h₂ _) ?_
     rw [XX_prime_pow _ _ hp, hψ]
@@ -176,7 +176,7 @@ lemma LSeriesSummable_coeff (χ₁ : DirichletCharacter ℂ N₁) (χ₂ : Diric
     (LSeriesSummable_mul (LSeriesSummable_X χ₂ hs) (LSeriesSummable_X _ hs))
 
 lemma abscissa_coeff_le (χ₁ : DirichletCharacter ℂ N₁) (χ₂ : DirichletCharacter ℂ N₂) :
-    abscissaOfAbsConv ↗(coeff χ₁ χ₂) ≤ 1 :=
+    abscissaOfAbsConv ↗(coeff χ₁ χ₂) ≤ ((1 : ℝ) : EReal) :=
   abscissaOfAbsConv_le_of_forall_lt_LSeriesSummable fun y hy =>
     LSeriesSummable_coeff χ₁ χ₂ (by simpa using hy)
 
@@ -185,11 +185,15 @@ lemma LSeries_coeff (χ₁ : DirichletCharacter ℂ N₁) (χ₂ : DirichletChar
     (hs : 1 < s.re) :
     LSeries ↗(coeff χ₁ χ₂) s = LSeries 1 s *
       (LFunction χ₁ s * LFunction χ₂ s * LFunction (prodChar χ₁ χ₂) s) := by
-  rw [coeff, LSeries_mul' (LSeriesSummable_zetaMul χ₁ hs)
+  have hzs : LSeriesSummable ↗((ζ : ArithmeticFunction ℕ) : ArithmeticFunction ℂ) s :=
+    LSeriesSummable_zeta_iff.mpr hs
+  have hz : LSeries ↗((ζ : ArithmeticFunction ℕ) : ArithmeticFunction ℂ) s = LSeries 1 s :=
+    congrFun LSeries_zeta_eq s
+  rw [coeff, zetaMul, LSeries_mul' (LSeriesSummable_mul hzs (LSeriesSummable_X χ₁ hs))
     (LSeriesSummable_mul (LSeriesSummable_X χ₂ hs) (LSeriesSummable_X _ hs)),
-    LSeries_mul' (LSeriesSummable_X χ₂ hs) (LSeriesSummable_X _ hs), LSeries_X χ₂ hs,
-    LSeries_X _ hs, zetaMul, LSeries_mul' (LSeriesSummable_zeta_iff.mpr hs)
-    (LSeriesSummable_X χ₁ hs), LSeries_X χ₁ hs, LSeries_zeta_eq]
+    LSeries_mul' hzs (LSeriesSummable_X χ₁ hs),
+    LSeries_mul' (LSeriesSummable_X χ₂ hs) (LSeriesSummable_X _ hs), hz, LSeries_X χ₁ hs,
+    LSeries_X χ₂ hs, LSeries_X _ hs]
   ring
 
-end SiegelThm
+end SiegelThmLib

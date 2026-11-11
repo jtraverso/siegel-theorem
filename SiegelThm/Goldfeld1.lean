@@ -24,7 +24,7 @@ open Complex DirichletCharacter Metric Set Filter Topology LSeries
 
 open scoped ComplexOrder Nat
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 variable {N₁ N₂ : ℕ} [NeZero N₁] [NeZero N₂]
 
@@ -80,9 +80,9 @@ lemma sphere_facts {s : ℂ} (hs : s ∈ sphere (2 : ℂ) (3 / 2)) :
     rw [hs, sub_re] at h
     have := (abs_le.mp h).1
     norm_num at this ⊢; linarith
-  · calc ‖s‖ = ‖(s - 2) + 2‖ := by ring_nf
+  · calc ‖s‖ = ‖(s - 2) + 2‖ := by rw [sub_add_cancel]
       _ ≤ ‖s - 2‖ + ‖(2 : ℂ)‖ := norm_add_le _ _
-      _ = 7 / 2 := by rw [hs]; norm_num
+      _ = 7 / 2 := by norm_num [hs]
   · have h := norm_sub_norm_le (s - 2) (-1)
     rw [hs, show s - 2 - -1 = s - 1 by ring, norm_neg, norm_one] at h
     linarith
@@ -221,4 +221,4 @@ lemma one_le_D0 (h₁ : χ₁ ^ 2 = 1) (h₂ : χ₂ ^ 2 = 1) :
     simpa using (Complex.le_def.mp this).1)
   simpa [LSeries.term_def, coeff_one] using h
 
-end SiegelThm
+end SiegelThmLib

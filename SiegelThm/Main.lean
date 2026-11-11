@@ -23,7 +23,7 @@ open Complex DirichletCharacter Set
 
 open scoped ComplexOrder
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 /-! ### From a witness `(χ₁, β)` to the bound -/
 
@@ -37,23 +37,26 @@ lemma siegel_of_witness {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) {N₁ : ℕ}
       prodChar χ₁ χ ≠ 1 → (F χ₁ χ β).re ≤ 0) :
     ∃ c : ℝ, 0 < c ∧ ∀ (N : ℕ) [NeZero N] (χ : DirichletCharacter ℂ N), χ ≠ 1 → χ ^ 2 = 1 →
       c * (N : ℝ) ^ (-ε) ≤ ‖LFunction χ 1‖ := by
-  set u : ℝ := 1 - β with hu
-  have hu0 : 0 < u := by linarith
-  have hu1 : 8 * u ≤ ε / 2 := by linarith
+  have hu0 : 0 < 1 - β := by linarith
+  have hu1 : 8 * (1 - β) ≤ ε / 2 := by linarith
   have hβ78 : 7 / 8 ≤ β := by linarith
-  set L1 : ℝ := ‖LFunction χ₁ 1‖ with hL1
-  have hL1 : 0 < L1 := norm_pos_iff.mpr (LFunction_apply_one_ne_zero hχ₁)
-  set n1 : ℝ := (N₁ : ℝ) with hn1
-  have hn1' : 1 ≤ n1 := natCast_one_le N₁
-  set a0 : ℝ := u / 2 * (50000 * n1 ^ 2) ^ (-(4 * u)) with ha0
-  have ha0' : 0 < a0 := by positivity
-  set b0 : ℝ := n1 ^ (ε / 2) / (ε / 2) with hb0
-  have hb0' : 0 < b0 := by positivity
+  have hL1 : 0 < ‖LFunction χ₁ 1‖ := norm_pos_iff.mpr (LFunction_apply_one_ne_zero hχ₁)
+  have hn1 : (1 : ℝ) ≤ N₁ := natCast_one_le N₁
+  have hn0 : (0 : ℝ) < N₁ := by linarith
+  obtain ⟨a0, ha0⟩ : ∃ a0 : ℝ,
+      a0 = (1 - β) / 2 * (50000 * (N₁ : ℝ) ^ 2) ^ (-(4 * (1 - β))) := ⟨_, rfl⟩
+  have ha0' : 0 < a0 := by
+    rw [ha0]; exact mul_pos (by linarith) (Real.rpow_pos_of_pos (by positivity) _)
+  obtain ⟨b0, hb0⟩ : ∃ b0 : ℝ, b0 = (N₁ : ℝ) ^ (ε / 2) / (ε / 2) := ⟨_, rfl⟩
+  have hb0' : 0 < b0 := by
+    rw [hb0]; exact div_pos (Real.rpow_pos_of_pos hn0 _) (by linarith)
   obtain ⟨cE, hcE, hE⟩ := prod_one_sub_inv_ge (η := ε / 2) (by linarith)
-  set cA : ℝ := a0 / (L1 * b0) with hcA
-  set cB : ℝ := L1 * (cE * n1 ^ (-(ε / 2))) ^ 2 with hcB
-  have hcA' : 0 < cA := by positivity
-  have hcB' : 0 < cB := by positivity
+  obtain ⟨cA, hcA⟩ : ∃ c : ℝ, c = a0 / (‖LFunction χ₁ 1‖ * b0) := ⟨_, rfl⟩
+  obtain ⟨cB, hcB⟩ : ∃ c : ℝ,
+      c = ‖LFunction χ₁ 1‖ * (cE * (N₁ : ℝ) ^ (-(ε / 2))) ^ 2 := ⟨_, rfl⟩
+  have hcA' : 0 < cA := by rw [hcA]; exact div_pos ha0' (mul_pos hL1 hb0')
+  have hcB' : 0 < cB := by
+    rw [hcB]; exact mul_pos hL1 (pow_pos (mul_pos hcE (Real.rpow_pos_of_pos hn0 _)) 2)
   refine ⟨min cA cB, lt_min hcA' hcB', fun N _ χ hχ hsq => ?_⟩
   have hN1 : (1 : ℝ) ≤ N := natCast_one_le N
   have hN0 : (0 : ℝ) < N := by linarith
@@ -64,65 +67,72 @@ lemma siegel_of_witness {ε : ℝ} (hε : 0 < ε) (hε1 : ε ≤ 1) {N₁ : ℕ}
   by_cases hψ : prodChar χ₁ χ = 1
   · -- equivalent characters
     have h1 := equiv_case hχ₁ hχ hsq hψ
-    have hNN : ((N₁ * N : ℕ) : ℝ) ≠ 0 := by positivity
-    have h2 := hE (N₁ * N) (by exact_mod_cast hNN)
-    have h3 : ((N₁ * N : ℕ) : ℝ) ^ (-(ε / 2)) = n1 ^ (-(ε / 2)) * (N : ℝ) ^ (-(ε / 2)) := by
-      push_cast; exact Real.mul_rpow (by linarith) hN0.le
+    have h2 := hE (N₁ * N) (Nat.mul_ne_zero (NeZero.ne N₁) (NeZero.ne N))
+    have h3 : ((N₁ * N : ℕ) : ℝ) ^ (-(ε / 2)) =
+        (N₁ : ℝ) ^ (-(ε / 2)) * (N : ℝ) ^ (-(ε / 2)) := by
+      push_cast; exact Real.mul_rpow hn0.le hN0.le
     rw [h3] at h2
-    have h4 : 0 ≤ cE * (n1 ^ (-(ε / 2)) * (N : ℝ) ^ (-(ε / 2))) := by positivity
+    have h4 : 0 ≤ cE * ((N₁ : ℝ) ^ (-(ε / 2)) * (N : ℝ) ^ (-(ε / 2))) :=
+      mul_nonneg hcE.le (mul_nonneg (Real.rpow_nonneg hn0.le _) (Real.rpow_nonneg hN0.le _))
     have h5 := pow_le_pow_left₀ h4 h2 2
     calc min cA cB * (N : ℝ) ^ (-ε) ≤ cB * (N : ℝ) ^ (-ε) :=
           mul_le_mul_of_nonneg_right (min_le_right _ _) hNε
-      _ = L1 * (cE * (n1 ^ (-(ε / 2)) * (N : ℝ) ^ (-(ε / 2)))) ^ 2 := by
+      _ = ‖LFunction χ₁ 1‖ * (cE * ((N₁ : ℝ) ^ (-(ε / 2)) * (N : ℝ) ^ (-(ε / 2)))) ^ 2 := by
           rw [hcB, ← hsq2]; ring
-      _ ≤ L1 * (∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹)) ^ 2 :=
+      _ ≤ ‖LFunction χ₁ 1‖ * (∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹)) ^ 2 :=
           mul_le_mul_of_nonneg_left h5 hL1.le
       _ ≤ ‖LFunction χ 1‖ := h1
   · -- Goldfeld's lemma
     have hG := goldfeld hχ₁ hχ hψ h₁ hsq hβ78 hβ2 (hF N χ hχ hsq hψ)
-    rw [← hu] at hG
-    have hP : ‖P χ₁ χ 1‖ = L1 * ‖LFunction χ 1‖ * ‖LFunction (prodChar χ₁ χ) 1‖ := by
+    have hP : ‖P χ₁ χ 1‖ =
+        ‖LFunction χ₁ 1‖ * ‖LFunction χ 1‖ * ‖LFunction (prodChar χ₁ χ) 1‖ := by
       unfold P; rw [norm_mul, norm_mul]
     rw [hP] at hG
     have hY := norm_LFunction_one_le hψ (η := ε / 2) (by linarith) (by linarith)
     have hY' : ‖LFunction (prodChar χ₁ χ) 1‖ ≤ b0 * (N : ℝ) ^ (ε / 2) := by
       refine hY.trans (le_of_eq ?_)
       rw [hb0]; push_cast
-      rw [Real.mul_rpow (by linarith) hN0.le]; ring
+      rw [Real.mul_rpow hn0.le hN0.le]; ring
     -- lower bound for the Goldfeld constant
     have hlow : a0 * (N : ℝ) ^ (-(ε / 2)) ≤
-        u / 2 * (50000 * (n1 * (N : ℝ)) ^ 2) ^ (-(4 * u)) := by
-      have e1 : (50000 * (n1 * (N : ℝ)) ^ 2) = (50000 * n1 ^ 2) * ((N : ℝ) ^ 2) := by ring
+        (1 - β) / 2 * (50000 * ((N₁ : ℝ) * (N : ℝ)) ^ 2) ^ (-(4 * (1 - β))) := by
+      have e1 : (50000 * ((N₁ : ℝ) * (N : ℝ)) ^ 2) = (50000 * (N₁ : ℝ) ^ 2) * ((N : ℝ) ^ 2) := by
+        ring
       rw [e1, Real.mul_rpow (by positivity) (by positivity), ha0]
-      have e2 : ((N : ℝ) ^ 2) ^ (-(4 * u)) = (N : ℝ) ^ (-(8 * u)) := by
+      have e2 : ((N : ℝ) ^ 2) ^ (-(4 * (1 - β))) = (N : ℝ) ^ (-(8 * (1 - β))) := by
         rw [← Real.rpow_natCast, ← Real.rpow_mul hN0.le]; congr 1; push_cast; ring
       rw [e2]
-      have e3 : (N : ℝ) ^ (-(ε / 2)) ≤ (N : ℝ) ^ (-(8 * u)) :=
+      have e3 : (N : ℝ) ^ (-(ε / 2)) ≤ (N : ℝ) ^ (-(8 * (1 - β))) :=
         Real.rpow_le_rpow_of_exponent_le hN1 (by linarith)
-      have : 0 ≤ u / 2 * (50000 * n1 ^ 2) ^ (-(4 * u)) := by positivity
-      calc u / 2 * (50000 * n1 ^ 2) ^ (-(4 * u)) * (N : ℝ) ^ (-(ε / 2))
-          ≤ u / 2 * (50000 * n1 ^ 2) ^ (-(4 * u)) * (N : ℝ) ^ (-(8 * u)) :=
+      have : 0 ≤ (1 - β) / 2 * (50000 * (N₁ : ℝ) ^ 2) ^ (-(4 * (1 - β))) :=
+        mul_nonneg (by linarith) (Real.rpow_nonneg (by positivity) _)
+      calc (1 - β) / 2 * (50000 * (N₁ : ℝ) ^ 2) ^ (-(4 * (1 - β))) * (N : ℝ) ^ (-(ε / 2))
+          ≤ (1 - β) / 2 * (50000 * (N₁ : ℝ) ^ 2) ^ (-(4 * (1 - β))) *
+              (N : ℝ) ^ (-(8 * (1 - β))) :=
             mul_le_mul_of_nonneg_left e3 this
         _ = _ := by ring
     have hX : 0 ≤ ‖LFunction χ 1‖ := norm_nonneg _
     have hchain : a0 * (N : ℝ) ^ (-(ε / 2)) ≤
-        L1 * ‖LFunction χ 1‖ * (b0 * (N : ℝ) ^ (ε / 2)) := by
-      have : L1 * ‖LFunction χ 1‖ * ‖LFunction (prodChar χ₁ χ) 1‖ ≤
-          L1 * ‖LFunction χ 1‖ * (b0 * (N : ℝ) ^ (ε / 2)) :=
-        mul_le_mul_of_nonneg_left hY' (by positivity)
+        ‖LFunction χ₁ 1‖ * ‖LFunction χ 1‖ * (b0 * (N : ℝ) ^ (ε / 2)) := by
+      have : ‖LFunction χ₁ 1‖ * ‖LFunction χ 1‖ * ‖LFunction (prodChar χ₁ χ) 1‖ ≤
+          ‖LFunction χ₁ 1‖ * ‖LFunction χ 1‖ * (b0 * (N : ℝ) ^ (ε / 2)) :=
+        mul_le_mul_of_nonneg_left hY' (mul_nonneg hL1.le hX)
       linarith
     have hNh : 0 < (N : ℝ) ^ (ε / 2) := Real.rpow_pos_of_pos hN0 _
     have hexp : (N : ℝ) ^ (ε / 2) * (N : ℝ) ^ (-ε) = (N : ℝ) ^ (-(ε / 2)) := by
       rw [← Real.rpow_add hN0]; congr 1; ring
-    have hpos : 0 < L1 * b0 * (N : ℝ) ^ (ε / 2) := by positivity
+    have hpos : 0 < ‖LFunction χ₁ 1‖ * b0 * (N : ℝ) ^ (ε / 2) :=
+      mul_pos (mul_pos hL1 hb0') hNh
+    have hL1ne := hL1.ne'
+    have hb0ne := hb0'.ne'
     have hgoal : cA * (N : ℝ) ^ (-ε) ≤ ‖LFunction χ 1‖ := by
       refine le_of_mul_le_mul_left ?_ hpos
-      calc L1 * b0 * (N : ℝ) ^ (ε / 2) * (cA * (N : ℝ) ^ (-ε))
+      calc ‖LFunction χ₁ 1‖ * b0 * (N : ℝ) ^ (ε / 2) * (cA * (N : ℝ) ^ (-ε))
           = a0 * ((N : ℝ) ^ (ε / 2) * (N : ℝ) ^ (-ε)) := by
             rw [hcA]; field_simp
         _ = a0 * (N : ℝ) ^ (-(ε / 2)) := by rw [hexp]
-        _ ≤ L1 * ‖LFunction χ 1‖ * (b0 * (N : ℝ) ^ (ε / 2)) := hchain
-        _ = L1 * b0 * (N : ℝ) ^ (ε / 2) * ‖LFunction χ 1‖ := by ring
+        _ ≤ ‖LFunction χ₁ 1‖ * ‖LFunction χ 1‖ * (b0 * (N : ℝ) ^ (ε / 2)) := hchain
+        _ = ‖LFunction χ₁ 1‖ * b0 * (N : ℝ) ^ (ε / 2) * ‖LFunction χ 1‖ := by ring
     calc min cA cB * (N : ℝ) ^ (-ε) ≤ cA * (N : ℝ) ^ (-ε) :=
           mul_le_mul_of_nonneg_right (min_le_left _ _) hNε
       _ ≤ _ := hgoal
@@ -186,7 +196,7 @@ lemma P_pos_of_no_zero {χ₁ : DirichletCharacter ℂ N₁} {χ : DirichletChar
   -- positivity at `2`
   have hf2 : 0 < f 2 := by
     have hA : 0 < LSeries ↗(coeff χ₁ χ) ((2 : ℝ) : ℂ) :=
-      LSeries.positive (fun k => coeff_nonneg h₁ h k) (by rw [coeff_one]; exact zero_lt_one)
+      LSeries.positive (fun k => coeff_nonneg h₁ h k) (by simp [coeff_one])
         (two_mem_abscissa χ₁ χ)
     have hab1 : LSeries.abscissaOfAbsConv (1 : ℕ → ℂ) < ((2 : ℝ) : EReal) := by
       refine (LSeries.abscissaOfAbsConv_le_of_forall_lt_LSeriesSummable
@@ -258,4 +268,4 @@ theorem siegel : ∀ ε : ℝ, 0 < ε → ∃ c : ℝ, 0 < c ∧ ∀ (N : ℕ) [
     exact mul_le_mul_of_nonneg_left
       (Real.rpow_le_rpow_of_exponent_le (natCast_one_le N) (by linarith)) hc.le
 
-end SiegelThm
+end SiegelThmLib

@@ -19,7 +19,7 @@ public import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 
 open Complex DirichletCharacter Finset
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 lemma one_sub_inv_nonneg {p : ℕ} (hp : p.Prime) : (0 : ℝ) ≤ 1 - (p : ℝ)⁻¹ := by
   have : (1 : ℝ) ≤ p := by exact_mod_cast hp.one_lt.le
@@ -34,9 +34,10 @@ lemma half_le_one_sub_inv {p : ℕ} (hp : p.Prime) : (1 : ℝ) / 2 ≤ 1 - (p : 
 lemma prod_one_sub_inv_ge {η : ℝ} (hη : 0 < η) :
     ∃ c : ℝ, 0 < c ∧ ∀ n : ℕ, n ≠ 0 →
       c * (n : ℝ) ^ (-η) ≤ ∏ p ∈ n.primeFactors, (1 - (p : ℝ)⁻¹) := by
-  set P : ℕ := ⌈(2 : ℝ) ^ (1 / η)⌉₊ with hP
+  obtain ⟨P, hP⟩ : ∃ P : ℕ, P = ⌈(2 : ℝ) ^ (1 / η)⌉₊ := ⟨_, rfl⟩
   refine ⟨(1 / 2) ^ P, by positivity, fun n hn => ?_⟩
-  set g : ℕ → ℝ := fun p => (if p < P then (1 / 2 : ℝ) else 1) * (p : ℝ) ^ (-η) with hg
+  obtain ⟨g, hg⟩ : ∃ g : ℕ → ℝ,
+      g = fun p => (if p < P then (1 / 2 : ℝ) else 1) * (p : ℝ) ^ (-η) := ⟨_, rfl⟩
   have hle : ∀ p ∈ n.primeFactors, g p ≤ 1 - (p : ℝ)⁻¹ := by
     intro p hp
     have hpr := Nat.prime_of_mem_primeFactors hp
@@ -45,10 +46,10 @@ lemma prod_one_sub_inv_ge {η : ℝ} (hη : 0 < η) :
     have hhalf := half_le_one_sub_inv hpr
     simp only [hg]
     split_ifs with h
-    · nlinarith [Real.rpow_nonneg (show (0 : ℝ) ≤ p by linarith) (-η)]
+    · linarith
     · push_neg at h
       have hPp : (2 : ℝ) ^ (1 / η) ≤ p :=
-        (Nat.le_ceil _).trans (by exact_mod_cast h)
+        (Nat.le_ceil _).trans (by rw [← hP]; exact_mod_cast h)
       have h2 : (2 : ℝ) ≤ (p : ℝ) ^ η := by
         have := Real.rpow_le_rpow (by positivity) hPp hη.le
         rwa [← Real.rpow_mul (by norm_num), one_div, inv_mul_cancel₀ hη.ne', Real.rpow_one]
@@ -66,6 +67,7 @@ lemma prod_one_sub_inv_ge {η : ℝ} (hη : 0 < η) :
   have h2 : ∏ p ∈ n.primeFactors, g p =
       (∏ p ∈ n.primeFactors, (if p < P then (1 / 2 : ℝ) else 1)) *
         (∏ p ∈ n.primeFactors, (p : ℝ)) ^ (-η) := by
+    simp only [hg]
     rw [Finset.prod_mul_distrib, Real.finsetProd_rpow _ _ (fun p _ => Nat.cast_nonneg p)]
   have h3 : (1 / 2 : ℝ) ^ P ≤ ∏ p ∈ n.primeFactors, (if p < P then (1 / 2 : ℝ) else 1) := by
     rw [Finset.prod_ite, Finset.prod_const, Finset.prod_const_one, mul_one]
@@ -113,60 +115,57 @@ lemma norm_euler_factor_le {M : ℕ} (χ : DirichletCharacter ℂ M) {p : ℕ} (
   calc ‖1 - χ p * (p : ℂ)⁻¹‖ ≤ ‖(1 : ℂ)‖ + ‖χ p * (p : ℂ)⁻¹‖ := norm_sub_le _ _
     _ ≤ 1 + (p : ℝ)⁻¹ := by rw [norm_one]; linarith
 
+lemma key_ineq {A B X Y E : ℝ} (hA : 0 ≤ A) (hB : 0 ≤ B) (hE : 0 ≤ E) (hn : A * X = B * Y)
+    (hlow : E ≤ X) (hup : Y * E ≤ 1) : A * E ^ 2 ≤ B := by
+  calc A * E ^ 2 = A * E * E := by ring
+    _ ≤ A * X * E := by gcongr
+    _ = B * (Y * E) := by rw [hn]; ring
+    _ ≤ B * 1 := by gcongr
+    _ = B := mul_one B
+
 /-- The equivalent case: `χ₁ χ` principal at level `N₁ N`. -/
 lemma equiv_case {N₁ N : ℕ} [NeZero N₁] [NeZero N] {χ₁ : DirichletCharacter ℂ N₁}
     {χ : DirichletCharacter ℂ N} (hχ₁ : χ₁ ≠ 1) (hχ : χ ≠ 1) (h : χ ^ 2 = 1)
     (hψ : prodChar χ₁ χ = 1) :
     ‖LFunction χ₁ 1‖ * (∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹)) ^ 2 ≤
       ‖LFunction χ 1‖ := by
-  set c₁ := changeLevel (dvd_mul_right N₁ N) χ₁ with hc₁
-  set c₂ := changeLevel (dvd_mul_left N N₁) χ with hc₂
+  obtain ⟨c₁, hc₁⟩ : ∃ c, c = changeLevel (dvd_mul_right N₁ N) χ₁ := ⟨_, rfl⟩
+  obtain ⟨c₂, hc₂⟩ : ∃ c, c = changeLevel (dvd_mul_left N N₁) χ := ⟨_, rfl⟩
   have hc2sq : c₂ * c₂ = 1 := by rw [← pow_two, hc₂, ← map_pow, h, map_one]
+  have hprod : c₁ * c₂ = 1 := by rw [hc₁, hc₂, ← hψ]; rfl
   have hc : c₁ = c₂ := by
     calc c₁ = c₁ * (c₂ * c₂) := by rw [hc2sq, mul_one]
       _ = (c₁ * c₂) * c₂ := (mul_assoc _ _ _).symm
-      _ = c₂ := by rw [show c₁ * c₂ = prodChar χ₁ χ from rfl, hψ, one_mul]
+      _ = c₂ := by rw [hprod, one_mul]
   have hL := congrArg (fun c => LFunction c 1) hc
   simp only [hc₁, hc₂] at hL
   rw [LFunction_changeLevel _ _ (Or.inl hχ₁), LFunction_changeLevel _ _ (Or.inl hχ)] at hL
   have hn := congrArg norm hL
   simp only [norm_mul, norm_prod] at hn
-  set E := ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) with hE
-  have hE0 : 0 < E := Finset.prod_pos fun p hp => by
-    have := half_le_one_sub_inv (Nat.prime_of_mem_primeFactors hp); linarith
-  have hlow : E ≤ ∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ₁ p * (p : ℂ) ^ (-(1 : ℂ))‖ :=
+  have hE0 : 0 ≤ ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) :=
+    Finset.prod_nonneg fun p hp => one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp)
+  have hlow : ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) ≤
+      ∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ₁ p * (p : ℂ) ^ (-(1 : ℂ))‖ :=
     Finset.prod_le_prod (fun p hp => one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp))
       (fun p hp => norm_euler_factor_ge χ₁ (Nat.prime_of_mem_primeFactors hp))
-  have hup : (∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ p * (p : ℂ) ^ (-(1 : ℂ))‖) * E ≤ 1 := by
+  have hup : (∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ p * (p : ℂ) ^ (-(1 : ℂ))‖) *
+      ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) ≤ 1 := by
     have h1 : (∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ p * (p : ℂ) ^ (-(1 : ℂ))‖) ≤
         ∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹) :=
       Finset.prod_le_prod (fun p _ => norm_nonneg _)
         (fun p hp => norm_euler_factor_le χ (Nat.prime_of_mem_primeFactors hp))
-    have h2 : (∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹)) * E ≤ 1 := by
-      rw [hE, ← Finset.prod_mul_distrib]
+    have h2 : (∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹)) *
+        ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) ≤ 1 := by
+      rw [← Finset.prod_mul_distrib]
       refine Finset.prod_le_one (fun p hp => ?_) (fun p hp => ?_)
       · have := one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp)
         have : (0 : ℝ) ≤ (p : ℝ)⁻¹ := inv_nonneg.mpr (Nat.cast_nonneg p)
         positivity
       · nlinarith [sq_nonneg ((p : ℝ)⁻¹)]
-    calc _ ≤ (∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹)) * E :=
-          mul_le_mul_of_nonneg_right h1 hE0.le
+    calc _ ≤ (∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹)) *
+          ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) :=
+          mul_le_mul_of_nonneg_right h1 hE0
       _ ≤ 1 := h2
-  set A := ‖LFunction χ₁ 1‖
-  set B := ‖LFunction χ 1‖
-  set X := ∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ₁ p * (p : ℂ) ^ (-(1 : ℂ))‖
-  set Y := ∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ p * (p : ℂ) ^ (-(1 : ℂ))‖
-  have hA : 0 ≤ A := norm_nonneg _
-  have hB : 0 ≤ B := norm_nonneg _
-  have hY : 0 ≤ Y := Finset.prod_nonneg fun p _ => norm_nonneg _
-  -- `A X = B Y`, `X ≥ E`, `Y E ≤ 1`
-  have key : A * E * E ≤ B := by
-    calc A * E * E ≤ A * X * E := by gcongr
-      _ = B * Y * E := by rw [hn]
-      _ = B * (Y * E) := by ring
-      _ ≤ B * 1 := by gcongr
-      _ = B := mul_one B
-  calc A * E ^ 2 = A * E * E := by ring
-    _ ≤ B := key
+  exact key_ineq (norm_nonneg _) (norm_nonneg _) hE0 hn hlow hup
 
-end SiegelThm
+end SiegelThmLib

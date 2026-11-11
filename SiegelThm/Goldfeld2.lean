@@ -22,7 +22,7 @@ open Complex DirichletCharacter Metric Set Filter Topology LSeries Finset
 
 open scoped ComplexOrder Nat
 
-namespace SiegelThm
+namespace SiegelThmLib
 
 variable {N₁ N₂ : ℕ} [NeZero N₁] [NeZero N₂]
 variable {χ₁ : DirichletCharacter ℂ N₁} {χ₂ : DirichletCharacter ℂ N₂}
@@ -78,14 +78,9 @@ lemma re_F_ge (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar χ�
     (h₂ : χ₂ ^ 2 = 1) {β : ℝ} (hβ1 : 7 / 8 ≤ β) (hβ2 : β < 1) {M : ℕ} (hM : 1 ≤ M) :
     1 - ‖P χ₁ χ₂ 1‖ * (2 - β) ^ M / (1 - β) - 16000 * ((N₁ : ℝ) * N₂) ^ 2 * (3 / 4) ^ M ≤
       (F χ₁ χ₂ β).re := by
-  set x : ℝ := 2 - β with hxdef
-  set MG : ℝ := 4000 * ((N₁ : ℝ) * N₂) ^ 2 with hMG
-  set lam : ℂ := P χ₁ χ₂ 1 with hlam
-  have hx1 : 1 < x := by linarith
-  have hMG0 : 0 ≤ MG := by positivity
-  set ρ : ℝ := 2 * x / 3 with hρ
-  have hρ0 : 0 < ρ := by positivity
-  have hρ1 : ρ ≤ 3 / 4 := by rw [hρ]; linarith
+  have hMG0 : 0 ≤ 4000 * ((N₁ : ℝ) * N₂) ^ 2 := by positivity
+  have hρ0 : 0 < 2 * (2 - β) / 3 := by linarith
+  have hρ1 : 2 * (2 - β) / 3 ≤ 3 / 4 := by linarith
   -- Taylor expansion of `G` at `2`
   have hdiff : DifferentiableOn ℂ (G χ₁ χ₂) (ball (2 : ℂ) 2) := by
     refine (differentiableOn_G hχ₁ hχ₂ hψ).mono fun z hz => ?_
@@ -100,26 +95,24 @@ lemma re_F_ge (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar χ�
       Real.norm_eq_abs, abs_of_nonpos (by linarith)]
     linarith
   have hT := Complex.hasSum_taylorSeries_on_ball hdiff hβmem
-  set r : ℕ → ℝ := fun n =>
-    ((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2).re with hr
-  have hR : HasSum r (G χ₁ χ₂ β).re := Complex.reCLM.hasSum hT
+  have hR := Complex.hasSum_re hT
   -- lower bounds for the terms
-  have hr_tail : ∀ n, -(MG * ρ ^ n) ≤ r n := by
+  have hr_tail : ∀ n, -(4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ n) ≤
+      ((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2).re := by
     intro n
     have h := norm_taylor_term_le hχ₁ hχ₂ hψ (β := β) (by linarith) n
     have h' := neg_abs_le
       (((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2).re)
     have h'' := abs_re_le_norm ((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2)
-    simp only [hr]
     linarith
-  have hr_head : ∀ n, (if n = 0 then (1 : ℝ) else 0) - x ^ n * lam.re ≤ r n := by
+  have hr_head : ∀ n, (if n = 0 then (1 : ℝ) else 0) - (2 - β) ^ n * (P χ₁ χ₂ 1).re ≤
+      ((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2).re := by
     intro n
-    simp only [hr]
     rw [re_taylor_term]
     have hD := Dn_nonneg h₁ h₂ n
     have hDre : 0 ≤ ((-1) ^ n * iteratedDeriv n (LSeries ↗(coeff χ₁ χ₂)) 2).re :=
       (Complex.le_def.mp hD).1
-    have hxn : 0 ≤ x ^ n := pow_nonneg (by linarith) n
+    have hxn : 0 ≤ (2 - β) ^ n := pow_nonneg (by linarith) n
     have hfac : (0 : ℝ) < n ! := by exact_mod_cast Nat.factorial_pos n
     split_ifs with hn
     · subst hn
@@ -131,60 +124,69 @@ lemma re_F_ge (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar χ�
         div_nonneg hDre hfac.le
       nlinarith
   -- split the sum at `M`
-  have hsplit := sum_add_tsum_nat_add M hR.summable
+  have hsplit := Summable.sum_add_tsum_nat_add M hR.summable
   rw [hR.tsum_eq] at hsplit
-  have hhead : 1 - lam.re * ∑ n ∈ range M, x ^ n ≤ ∑ n ∈ range M, r n := by
-    have := Finset.sum_le_sum fun n (_ : n ∈ range M) => hr_head n
-    rw [Finset.sum_sub_distrib, Finset.sum_ite_eq' (range M) 0 (fun _ => (1 : ℝ)),
-      if_pos (mem_range.mpr (by omega)), ← Finset.sum_mul] at this
-    linarith [mul_comm lam.re (∑ n ∈ range M, x ^ n)]
-  have hgeo : Summable fun n : ℕ => MG * ρ ^ (n + M) := by
+  have hhead : 1 - (P χ₁ χ₂ 1).re * ∑ n ∈ range M, (2 - β) ^ n ≤
+      ∑ n ∈ range M, ((n ! : ℂ)⁻¹ • ((β : ℂ) - 2) ^ n • iteratedDeriv n (G χ₁ χ₂) 2).re := by
+    have h1 := Finset.sum_le_sum fun n (_ : n ∈ range M) => hr_head n
+    have h2 : ∑ n ∈ range M, ((if n = 0 then (1 : ℝ) else 0) - (2 - β) ^ n * (P χ₁ χ₂ 1).re) =
+        1 - (P χ₁ χ₂ 1).re * ∑ n ∈ range M, (2 - β) ^ n := by
+      rw [Finset.sum_sub_distrib, Finset.sum_ite_eq', if_pos (mem_range.mpr (by omega)),
+        ← Finset.sum_mul]
+      ring
+    linarith
+  have hgeo : Summable fun n : ℕ =>
+      4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ (n + M) := by
     simp_rw [pow_add]
     exact ((summable_geometric_of_lt_one hρ0.le (by linarith)).mul_right _).mul_left _
-  have htail : -(MG * ρ ^ M * 4) ≤ ∑' n, r (n + M) := by
-    have hsr : Summable fun n => r (n + M) := (summable_nat_add_iff M).mpr hR.summable
-    have h1 : ∑' n, -(MG * ρ ^ (n + M)) ≤ ∑' n, r (n + M) :=
-      hgeo.neg.tsum_le_tsum (fun n => hr_tail (n + M)) hsr
-    have h2 : ∑' n, -(MG * ρ ^ (n + M)) = -(MG * ρ ^ M * (1 - ρ)⁻¹) := by
+  have htail : -(4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ M * 4) ≤
+      ∑' n, ((((n + M) ! : ℂ))⁻¹ • ((β : ℂ) - 2) ^ (n + M) •
+        iteratedDeriv (n + M) (G χ₁ χ₂) 2).re := by
+    have hsr := (summable_nat_add_iff M).mpr hR.summable
+    have h1 := hgeo.neg.tsum_le_tsum (fun n => hr_tail (n + M)) hsr
+    have h2 : ∑' n, -(4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ (n + M)) =
+        -(4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ M * (1 - 2 * (2 - β) / 3)⁻¹) := by
       rw [tsum_neg]
       simp_rw [pow_add]
       rw [tsum_mul_left, tsum_mul_right, tsum_geometric_of_lt_one hρ0.le (by linarith)]
       ring
-    have h3 : (1 - ρ)⁻¹ ≤ 4 := by
+    have h3 : (1 - 2 * (2 - β) / 3)⁻¹ ≤ 4 := by
       rw [inv_le_comm₀ (by linarith) (by norm_num)]; linarith
-    have h4 : MG * ρ ^ M * (1 - ρ)⁻¹ ≤ MG * ρ ^ M * 4 :=
+    have h4 : 4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ M * (1 - 2 * (2 - β) / 3)⁻¹ ≤
+        4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ M * 4 :=
       mul_le_mul_of_nonneg_left h3 (by positivity)
     linarith
-  have hρM : ρ ^ M ≤ (3 / 4) ^ M := pow_le_pow_left₀ hρ0.le hρ1 M
-  have hGre : 1 - lam.re * ∑ n ∈ range M, x ^ n - 4 * MG * (3 / 4) ^ M ≤ (G χ₁ χ₂ β).re := by
-    have : MG * ρ ^ M * 4 ≤ 4 * MG * (3 / 4) ^ M := by nlinarith
+  have hρM : (2 * (2 - β) / 3) ^ M ≤ (3 / 4 : ℝ) ^ M := pow_le_pow_left₀ hρ0.le hρ1 M
+  have hGre : 1 - (P χ₁ χ₂ 1).re * ∑ n ∈ range M, (2 - β) ^ n -
+      16000 * ((N₁ : ℝ) * N₂) ^ 2 * (3 / 4) ^ M ≤ (G χ₁ χ₂ β).re := by
+    have : 4000 * ((N₁ : ℝ) * N₂) ^ 2 * (2 * (2 - β) / 3) ^ M * 4 ≤
+        16000 * ((N₁ : ℝ) * N₂) ^ 2 * (3 / 4) ^ M := by nlinarith
     linarith
   -- pass from `G` to `F`
   have hβ1' : (β : ℂ) ≠ 1 := by
     intro h; have := congrArg Complex.re h; simp at this; linarith
-  have hFG : F χ₁ χ₂ β = G χ₁ χ₂ β + lam / ((β - 1 : ℝ) : ℂ) := by
+  have hFG : F χ₁ χ₂ β = G χ₁ χ₂ β + P χ₁ χ₂ 1 / ((β - 1 : ℝ) : ℂ) := by
     rw [G_eq hβ1']; push_cast; ring
-  have hFre : (F χ₁ χ₂ β).re = (G χ₁ χ₂ β).re + lam.re / (β - 1) := by
+  have hFre : (F χ₁ χ₂ β).re = (G χ₁ χ₂ β).re + (P χ₁ χ₂ 1).re / (β - 1) := by
     rw [hFG, add_re, div_ofReal_re]
-  have hgs : ∑ n ∈ range M, x ^ n = (x ^ M - 1) / (x - 1) := geom_sum_eq (by linarith) M
-  have hlam : lam.re ≤ ‖lam‖ := re_le_norm lam
-  have hxM : 0 ≤ x ^ M / (1 - β) := div_nonneg (pow_nonneg (by linarith) M) (by linarith)
-  have hkey : 1 - lam.re * ∑ n ∈ range M, x ^ n + lam.re / (β - 1) =
-      1 - lam.re * x ^ M / (1 - β) := by
-    rw [hgs, hxdef]
+  have hgs : ∑ n ∈ range M, (2 - β) ^ n = ((2 - β) ^ M - 1) / ((2 - β) - 1) :=
+    geom_sum_eq (by linarith) M
+  have hlam : (P χ₁ χ₂ 1).re ≤ ‖P χ₁ χ₂ 1‖ := re_le_norm _
+  have hxM : 0 ≤ (2 - β) ^ M / (1 - β) := div_nonneg (pow_nonneg (by linarith) M) (by linarith)
+  have hkey : 1 - (P χ₁ χ₂ 1).re * ∑ n ∈ range M, (2 - β) ^ n + (P χ₁ χ₂ 1).re / (β - 1) =
+      1 - (P χ₁ χ₂ 1).re * (2 - β) ^ M / (1 - β) := by
+    rw [hgs]
     have h1 : (2 - β - 1) = 1 - β := by ring
     have h2 : β - 1 = -(1 - β) := by ring
     rw [h1, h2]
     have h3 : (1 - β) ≠ 0 := by linarith
     field_simp
     ring
-  have hfin : -(‖lam‖ * x ^ M / (1 - β)) ≤ -(lam.re * x ^ M / (1 - β)) := by
+  have hfin : -(‖P χ₁ χ₂ 1‖ * (2 - β) ^ M / (1 - β)) ≤
+      -((P χ₁ χ₂ 1).re * (2 - β) ^ M / (1 - β)) := by
     rw [neg_le_neg_iff, mul_div_assoc, mul_div_assoc]
     exact mul_le_mul_of_nonneg_right hlam hxM
   rw [hFre]
-  have : 16000 * ((N₁ : ℝ) * N₂) ^ 2 * (3 / 4) ^ M = 4 * MG * (3 / 4) ^ M := by
-    rw [hMG]; ring
-  rw [this]
   linarith
 
 /-- `x ≤ (4/3)^{4(x-1)}` for `x ≥ 1`. -/
@@ -233,6 +235,7 @@ theorem goldfeld (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar �
     rw [this, mul_one_div, div_le_iff₀ hpow_pos]
     nlinarith
   have hmain := re_F_ge hχ₁ hχ₂ hψ h₁ h₂ hβ1 hβ2 hM1
+  rw [← hQ2] at hmain
   set u : ℝ := 1 - β with hu
   have hu0 : 0 < u := by linarith
   set x : ℝ := 2 - β with hx
@@ -244,12 +247,12 @@ theorem goldfeld (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar �
     linarith
   -- `x^M ≤ (50000 Q²)^{4u}`
   have hxM : x ^ M ≤ (50000 * Q2) ^ (4 * u) := by
-    have h1 : x ≤ (4 / 3 : ℝ) ^ (4 * u) := hxu ▸ le_four_thirds_rpow hu0.le
+    have h1 : x ≤ (4 / 3 : ℝ) ^ (4 * u) := by rw [hxu]; exact le_four_thirds_rpow hu0.le
     have h2 : x ^ M ≤ ((4 / 3 : ℝ) ^ (4 * u)) ^ M :=
       pow_le_pow_left₀ (by linarith) h1 M
     have h3 : ((4 / 3 : ℝ) ^ (4 * u)) ^ M = ((4 / 3 : ℝ) ^ M) ^ (4 * u) := by
-      rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num), mul_comm,
-        Real.rpow_mul (by norm_num), Real.rpow_natCast]
+      rw [← Real.rpow_natCast ((4 / 3 : ℝ) ^ (4 * u)) M, ← Real.rpow_mul (by norm_num),
+        mul_comm (4 * u) (M : ℝ), Real.rpow_mul (by norm_num), Real.rpow_natCast]
     have h4 : ((4 / 3 : ℝ) ^ M) ^ (4 * u) ≤ (50000 * Q2) ^ (4 * u) :=
       Real.rpow_le_rpow hpow_pos.le hMup (by linarith)
     linarith
@@ -260,6 +263,6 @@ theorem goldfeld (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar �
         mul_le_mul_of_nonneg_right hlamx (inv_nonneg.mpr hY.le)
     _ ≤ ‖P χ₁ χ₂ 1‖ * (50000 * Q2) ^ (4 * u) * ((50000 * Q2) ^ (4 * u))⁻¹ := by
         gcongr
-    _ = ‖P χ₁ χ₂ 1‖ := by field_simp
+    _ = ‖P χ₁ χ₂ 1‖ := by rw [mul_assoc, mul_inv_cancel₀ hY.ne', mul_one]
 
-end SiegelThm
+end SiegelThmLib

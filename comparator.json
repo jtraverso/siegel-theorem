@@ -1,0 +1,16 @@
+{
+  "challenge_module": "SiegelThmChallenge",
+  "solution_module": "SiegelThmSolution",
+  "theorem_names": [
+    "SiegelThm.siegel",
+    "SiegelThm.LFunction_eq_integral",
+    "SiegelThm.norm_sum_Icc_le"
+  ],
+  "definition_names": [],
+  "permitted_axioms": [
+    "propext",
+    "Quot.sound",
+    "Classical.choice"
+  ],
+  "enable_nanoda": true
+}

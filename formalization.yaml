@@ -1,0 +1,134 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
+
+project:
+  name: "Siegel's theorem on L(1, χ) for real Dirichlet characters"
+  description: >-
+    A Lean 4 / Mathlib proof of Siegel's theorem (1935): for every ε > 0 there is c > 0 with
+    c·N^(-ε) ≤ ‖L(1, χ)‖ for every real non-principal Dirichlet character χ modulo N
+    (SiegelThm.siegel, with Mathlib's DirichletCharacter.LFunction; χ need not be primitive).
+    The proof is Goldfeld's (1974): F = ζ·L(χ₁)L(χ₂)L(χ₁χ₂) has non-negative Dirichlet
+    coefficients with a₁ = 1; its regular part G = F − λ/(s−1) is expanded in a Taylor series at
+    s = 2, with Cauchy's estimate on the circle |s−2| = 3/2 (where |G| ≤ 4000 (N₁N₂)²), giving
+    ‖λ‖ ≥ (1−β)/2 · (50000 (N₁N₂)²)^(−4(1−β)) whenever Re F(β) ≤ 0 and 7/8 ≤ β < 1; Siegel's
+    dichotomy (an exceptional zero in [1−ε/16, 1) or none, in which case χ₁ is the character
+    mod 4) gives the ineffective constant. Characters that induce the same character as χ₁ are
+    handled with the Euler factors (∏_{p∣n}(1−1/p) ≥ c(η)n^(−η)). Two auxiliary statements
+    are also compared: the integral representation L(s, χ) = s∫_1^∞ A(t) t^(−s−1) dt on
+    Re s > 0 (SiegelThm.LFunction_eq_integral, via Mathlib's Abel summation for Re s > 1, a
+    Mellin-transform holomorphy argument and the identity theorem) and ‖∑_{k≤M} χ(k)‖ ≤ N
+    (SiegelThm.norm_sum_Icc_le). Mathlib is the only dependency; Mathlib's continuation of ζ
+    is not used (ζ(s) = 1/(s−1) + 1 − s∫_1^∞{t}t^(−s−1) dt is proved directly). Three
+    statements; no definitions beyond Mathlib's.
+  authors:
+    - "Juan Pablo Traverso Gianini"
+  license: "Apache-2.0"
+  responsible_maintainers:
+    - "Juan Pablo Traverso Gianini"
+
+classification:
+  arxiv: ["math.NT"]
+  msc2020: ["11M20", "11R42"]
+
+repository:
+  role: "substantive-development"
+
+sources:
+  - title: "Über die Classenzahl quadratischer Zahlkörper"
+    authors:
+      - "Carl Ludwig Siegel"
+    type: "paper"
+    location: "Acta Arithmetica 1 (1935), 83–86"
+    relationship: "formalizes"
+    note: >-
+      The theorem L(1, χ) ≫_ε N^(−ε) for real characters. The formalized proof is not Siegel's
+      original one but Goldfeld's. The formalization is by a different author.
+    license: "unknown"
+    author_endorsement: "n/a"
+  - title: "A simple proof of Siegel's theorem"
+    authors:
+      - "Dorian Goldfeld"
+    id: "doi:10.1073/pnas.71.4.1055"
+    type: "paper"
+    location: "Proc. Nat. Acad. Sci. USA 71 (1974), 1055"
+    relationship: "formalizes"
+    note: >-
+      The proof formalized (auxiliary function ζL(χ₁)L(χ₂)L(χ₁χ₂), Taylor expansion at 2).
+      Constants were made explicit for the formalization. The article's author was not
+      involved.
+    license: "unknown"
+    author_endorsement: "not-contacted"
+  - title: "Multiplicative Number Theory I. Classical Theory"
+    authors:
+      - "Hugh L. Montgomery"
+      - "Robert C. Vaughan"
+    type: "book"
+    location: "Cambridge University Press, 2007, §11.2"
+    relationship: "background"
+    license: "all rights reserved"
+    author_endorsement: "n/a"
+
+related_formalizations:
+  - id: "PALOMAR-2026-10-21-000005 (sthubbar/goldbach-lean, entries/heathbrown1985)"
+    relationship: "related"
+    note: >-
+      Contains another formalization of Siegel's theorem and of the integral representation
+      with the same statements. This entry is an independent development (its proof sources
+      were not consulted and no code is shared); it exists so that packages can depend on
+      Siegel's theorem without a sub-directory lake dependency.
+
+status:
+  scope: "Siegel's theorem for real non-principal characters of every modulus; the integral representation of L(s, χ) on Re s > 0; the bound for character sums. Not formalized: effective versions, Siegel–Walfisz."
+  sorry_count: 0
+  sorry_in_definitions: 0
+  axioms: []
+
+automation:
+  methods:
+    - method: "agent"
+      models: ["Claude Opus 5.5"]
+      framework: "Claude Code (Anthropic)"
+      tool_setup: >-
+        Wrote the proof plan (NOTES.md), the Lean development (SiegelThm/*.lean), the
+        Challenge/Solution pair and the packaging under the author's direction, checked with
+        lean, #print axioms and a comparison of the elaborated Challenge and Solution
+        statements (pp.all) (Lean v4.35.0-rc3, Mathlib c55e6e786f49471c72fbddbec5415808896aec1e).
+      cost:
+        wall_time: "under a day"
+        spend_usd: "subscription-based"
+        hardware: "local machine"
+      prompting_notes: "Natural-language instructions in Spanish, directed by the author."
+  spend_usd: "subscription-based"
+  notes: >-
+    The result was chosen by the human author; the Lean development is AI-written under the
+    author's direction and mechanically verified: no sorry, axioms limited to propext,
+    Classical.choice and Quot.sound, identical elaborated statements in the Challenge and the
+    Solution.
+
+fidelity:
+  divergences: >-
+    "Real character" is χ ^ 2 = 1 and "non-principal" is χ ≠ 1 in Mathlib's
+    DirichletCharacter ℂ N; L(1, χ) is Mathlib's DirichletCharacter.LFunction χ 1 (the analytic
+    continuation, equal to the convergent series). The constant c depends on ε only and is
+    ineffective, as in Siegel's theorem.
+
+review:
+  status: "agent-reviewed"
+  reviewers:
+    - "Claude Opus 5.5 (AI agent in Claude Code, acting for the author)"
+  notes: >-
+    Agent review by Claude Opus 5.5, distinct from the mechanical verification: the agent
+    checked the statements against the classical theorem (the exponent −ε, the dependence of
+    c on ε only, all moduli including non-primitive characters; for N = 1 there is no
+    non-principal character). No independent human review has been performed. The result is
+    classical; no mathematical novelty is claimed.
+
+alignment:
+  namespace: "SiegelThm"
+  statements:
+    - {source: "Siegel 1935: L(1, χ) ≫_ε N^(−ε)", lean: "SiegelThm.siegel", module: "SiegelThmChallenge", status: "proved"}
+    - {source: "L(s, χ) = s ∫_1^∞ A(t) t^(−s−1) dt, Re s > 0", lean: "SiegelThm.LFunction_eq_integral", module: "SiegelThmChallenge", status: "proved"}
+    - {source: "|∑_{k ≤ M} χ(k)| ≤ N", lean: "SiegelThm.norm_sum_Icc_le", module: "SiegelThmChallenge", status: "proved"}
+
+acknowledgements: >-
+  Mathlib and the Lean community.

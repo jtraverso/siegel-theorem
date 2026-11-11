@@ -1,0 +1,232 @@
+SiegelThm.siegel : ∀ (ε : Real),
+  @LT.lt.{0} Real Real.instLT (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) ε →
+    @Exists.{1} Real fun (c : Real) =>
+      And (@LT.lt.{0} Real Real.instLT (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero)) c)
+        (∀ (N : Nat) [inst : @NeZero.{0} Nat (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) N]
+          (χ :
+            @DirichletCharacter.{0} Complex
+              (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+              N),
+          @Ne.{1}
+              (@DirichletCharacter.{0} Complex
+                (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                  (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                N)
+              χ
+              (@OfNat.ofNat.{0}
+                (@DirichletCharacter.{0} Complex
+                  (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                    (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                  N)
+                (nat_lit 1)
+                (@One.toOfNat1.{0}
+                  (@DirichletCharacter.{0} Complex
+                    (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                      (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                    N)
+                  (@MulChar.hasOne.{0, 0} (ZMod N) (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N)) Complex
+                    (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                      (@Semifield.toCommGroupWithZero.{0} Complex
+                        (@Field.toSemifield.{0} Complex Complex.instField)))))) →
+            @Eq.{1}
+                (@DirichletCharacter.{0} Complex
+                  (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                    (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                  N)
+                (@HPow.hPow.{0, 0, 0}
+                  (@DirichletCharacter.{0} Complex
+                    (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                      (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                    N)
+                  Nat
+                  (@DirichletCharacter.{0} Complex
+                    (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                      (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                    N)
+                  (@instHPow.{0, 0}
+                    (@DirichletCharacter.{0} Complex
+                      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                        (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                      N)
+                    Nat
+                    (@NPow.toPow.{0}
+                      (@DirichletCharacter.{0} Complex
+                        (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                          (@Semifield.toCommGroupWithZero.{0} Complex
+                            (@Field.toSemifield.{0} Complex Complex.instField)))
+                        N)
+                      (@Monoid.toNPow.{0}
+                        (@DirichletCharacter.{0} Complex
+                          (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                            (@Semifield.toCommGroupWithZero.{0} Complex
+                              (@Field.toSemifield.{0} Complex Complex.instField)))
+                          N)
+                        (@DivInvMonoid.toMonoid.{0}
+                          (@DirichletCharacter.{0} Complex
+                            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                              (@Semifield.toCommGroupWithZero.{0} Complex
+                                (@Field.toSemifield.{0} Complex Complex.instField)))
+                            N)
+                          (@Group.toDivInvMonoid.{0}
+                            (@DirichletCharacter.{0} Complex
+                              (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                                (@Semifield.toCommGroupWithZero.{0} Complex
+                                  (@Field.toSemifield.{0} Complex Complex.instField)))
+                              N)
+                            (@CommGroup.toGroup.{0}
+                              (@DirichletCharacter.{0} Complex
+                                (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                                  (@Semifield.toCommGroupWithZero.{0} Complex
+                                    (@Field.toSemifield.{0} Complex Complex.instField)))
+                                N)
+                              (@MulChar.commGroup.{0, 0} (ZMod N)
+                                (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N)) Complex
+                                (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                                  (@Semifield.toCommGroupWithZero.{0} Complex
+                                    (@Field.toSemifield.{0} Complex Complex.instField))))))))))
+                  χ (@OfNat.ofNat.{0} Nat (nat_lit 2) (instOfNatNat (nat_lit 2))))
+                (@OfNat.ofNat.{0}
+                  (@DirichletCharacter.{0} Complex
+                    (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                      (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                    N)
+                  (nat_lit 1)
+                  (@One.toOfNat1.{0}
+                    (@DirichletCharacter.{0} Complex
+                      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                        (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                      N)
+                    (@MulChar.hasOne.{0, 0} (ZMod N) (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N)) Complex
+                      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                        (@Semifield.toCommGroupWithZero.{0} Complex
+                          (@Field.toSemifield.{0} Complex Complex.instField)))))) →
+              @LE.le.{0} Real Real.instLE
+                (@HMul.hMul.{0, 0, 0} Real Real Real (@instHMul.{0} Real Real.instMul) c
+                  (@HPow.hPow.{0, 0, 0} Real Real Real (@instHPow.{0, 0} Real Real Real.instPow)
+                    (@Nat.cast.{0} Real Real.instNatCast N) (@Neg.neg.{0} Real Real.instNeg ε)))
+                (@Norm.norm.{0} Complex Complex.instNorm
+                  (@DirichletCharacter.LFunction N inst χ
+                    (@OfNat.ofNat.{0} Complex (nat_lit 1) (@One.toOfNat1.{0} Complex Complex.instOne)))))
+SiegelThm.LFunction_eq_integral : ∀ (N : Nat)
+  [inst : @NeZero.{0} Nat (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) N]
+  (χ :
+    @DirichletCharacter.{0} Complex
+      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+        (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+      N),
+  @Ne.{1}
+      (@DirichletCharacter.{0} Complex
+        (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+          (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+        N)
+      χ
+      (@OfNat.ofNat.{0}
+        (@DirichletCharacter.{0} Complex
+          (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+            (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+          N)
+        (nat_lit 1)
+        (@One.toOfNat1.{0}
+          (@DirichletCharacter.{0} Complex
+            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+              (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+            N)
+          (@MulChar.hasOne.{0, 0} (ZMod N) (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N)) Complex
+            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+              (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))))) →
+    ∀ (s : Complex),
+      @LT.lt.{0} Real Real.instLT (@OfNat.ofNat.{0} Real (nat_lit 0) (@Zero.toOfNat0.{0} Real Real.instZero))
+          (Complex.re s) →
+        @Eq.{1} Complex (@DirichletCharacter.LFunction N inst χ s)
+          (@HMul.hMul.{0, 0, 0} Complex Complex Complex (@instHMul.{0} Complex Complex.instMul) s
+            (@MeasureTheory.integral.{0, 0} Real Complex Complex.instNormedAddCommGroup
+              (@InnerProductSpace.toNormedSpace.{0, 0} Real Complex Real.instRCLike
+                (@NormedAddCommGroup.toSeminormedAddCommGroup.{0} Complex Complex.instNormedAddCommGroup)
+                instInnerProductSpaceRealComplex)
+              (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace)
+              (@MeasureTheory.Measure.restrict.{0} Real
+                (@MeasureTheory.MeasureSpace.toMeasurableSpace.{0} Real Real.measureSpace)
+                (@MeasureTheory.MeasureSpace.volume.{0} Real Real.measureSpace)
+                (@Set.Ioi.{0} Real Real.instPreorder
+                  (@OfNat.ofNat.{0} Real (nat_lit 1) (@One.toOfNat1.{0} Real Real.instOne))))
+              fun (t : Real) =>
+              @HMul.hMul.{0, 0, 0} Complex Complex Complex (@instHMul.{0} Complex Complex.instMul)
+                (@Finset.sum.{0, 0} Nat Complex Complex.instAddCommMonoid
+                  (@Finset.Icc.{0} Nat Nat.instPreorder Nat.instLocallyFiniteOrder
+                    (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1)))
+                    (@Nat.floor.{0} Real Real.semiring Real.partialOrder
+                      (@FloorRing.toFloorSemiring.{0} Real Real.instRing Real.linearOrder Real.instFloorRing) t))
+                  fun (k : Nat) =>
+                  @DFunLike.coe.{1, 1, 1}
+                    (@DirichletCharacter.{0} Complex
+                      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                        (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+                      N)
+                    (ZMod N) (fun (x : ZMod N) => Complex)
+                    (@MulChar.instFunLike.{0, 0} (ZMod N) (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N))
+                      Complex
+                      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+                        (@Semifield.toCommGroupWithZero.{0} Complex
+                          (@Field.toSemifield.{0} Complex Complex.instField))))
+                    χ
+                    (@Nat.cast.{0} (ZMod N)
+                      (@AddMonoidWithOne.toNatCast.{0} (ZMod N)
+                        (@AddGroupWithOne.toAddMonoidWithOne.{0} (ZMod N)
+                          (@Ring.toAddGroupWithOne.{0} (ZMod N) (@CommRing.toRing.{0} (ZMod N) (ZMod.commRing N)))))
+                      k))
+                (@HPow.hPow.{0, 0, 0} Complex Complex Complex (@instHPow.{0, 0} Complex Complex Complex.instPow)
+                  (Complex.ofReal t)
+                  (@Neg.neg.{0} Complex Complex.instNeg
+                    (@HAdd.hAdd.{0, 0, 0} Complex Complex Complex (@instHAdd.{0} Complex Complex.instAdd) s
+                      (@OfNat.ofNat.{0} Complex (nat_lit 1) (@One.toOfNat1.{0} Complex Complex.instOne)))))))
+@SiegelThm.norm_sum_Icc_le : ∀ {N : Nat} [@NeZero.{0} Nat (@MulZeroClass.toZero.{0} Nat Nat.instMulZeroClass) N]
+  {χ :
+    @DirichletCharacter.{0} Complex
+      (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+        (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+      N}
+  (hχ :
+    @Ne.{1}
+      (@DirichletCharacter.{0} Complex
+        (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+          (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+        N)
+      χ
+      (@OfNat.ofNat.{0}
+        (@DirichletCharacter.{0} Complex
+          (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+            (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+          N)
+        (nat_lit 1)
+        (@One.toOfNat1.{0}
+          (@DirichletCharacter.{0} Complex
+            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+              (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+            N)
+          (@MulChar.hasOne.{0, 0} (ZMod N) (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N)) Complex
+            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+              (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))))))
+  (M : Nat),
+  @LE.le.{0} Real Real.instLE
+    (@Norm.norm.{0} Complex Complex.instNorm
+      (@Finset.sum.{0, 0} Nat Complex Complex.instAddCommMonoid
+        (@Finset.Icc.{0} Nat Nat.instPreorder Nat.instLocallyFiniteOrder
+          (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) M)
+        fun (k : Nat) =>
+        @DFunLike.coe.{1, 1, 1}
+          (@DirichletCharacter.{0} Complex
+            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+              (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField)))
+            N)
+          (ZMod N) (fun (x : ZMod N) => Complex)
+          (@MulChar.instFunLike.{0, 0} (ZMod N) (@CommRing.toCommMonoid.{0} (ZMod N) (ZMod.commRing N)) Complex
+            (@CommGroupWithZero.toCommMonoidWithZero.{0} Complex
+              (@Semifield.toCommGroupWithZero.{0} Complex (@Field.toSemifield.{0} Complex Complex.instField))))
+          χ
+          (@Nat.cast.{0} (ZMod N)
+            (@AddMonoidWithOne.toNatCast.{0} (ZMod N)
+              (@AddGroupWithOne.toAddMonoidWithOne.{0} (ZMod N)
+                (@Ring.toAddGroupWithOne.{0} (ZMod N) (@CommRing.toRing.{0} (ZMod N) (ZMod.commRing N)))))
+            k)))
+    (@Nat.cast.{0} Real Real.instNatCast N)

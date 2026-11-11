@@ -8,7 +8,7 @@ module
 public import SiegelThm.Goldfeld2
 public import SiegelThm.Euler
 public import Mathlib.NumberTheory.LegendreSymbol.ZModChar
-public import Mathlib.Topology.Algebra.Order.IntermediateValue
+public import Mathlib.Topology.Order.IntermediateValue
 
 /-!
 # Siegel's theorem
@@ -21,7 +21,7 @@ Goldfeld's dichotomy on the existence of a real zero in `[1 - ε/16, 1)`.
 
 open Complex DirichletCharacter Set
 
-open scoped ComplexOrder
+open scoped ComplexOrder LSeries.notation
 
 namespace SiegelThmLib
 
@@ -200,8 +200,8 @@ lemma P_pos_of_no_zero {χ₁ : DirichletCharacter ℂ N₁} {χ : DirichletChar
         (two_mem_abscissa χ₁ χ)
     have hab1 : LSeries.abscissaOfAbsConv (1 : ℕ → ℂ) < ((2 : ℝ) : EReal) := by
       refine (LSeries.abscissaOfAbsConv_le_of_forall_lt_LSeriesSummable
-        (x := 1) fun y hy => LSeriesSummable_one_iff.mpr (by simpa using hy)).trans_lt ?_
-      norm_cast; norm_num
+        (x := 1) fun y hy => LSeriesSummable_one_iff.mpr (by simpa using hy)).trans_lt
+        (EReal.coe_lt_coe_iff.mpr (by norm_num))
     have hZ : 0 < LSeries 1 ((2 : ℝ) : ℂ) :=
       LSeries.positive (fun _ => zero_le_one) zero_lt_one hab1
     have hco := LSeries_coeff χ₁ χ (s := ((2 : ℝ) : ℂ)) (by simp)

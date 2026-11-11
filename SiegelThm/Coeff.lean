@@ -20,15 +20,15 @@ coefficients `a = ζ * χ₁ * χ₂ * ψ` are non-negative reals with `a 1 = 1`
 
 open ArithmeticFunction DirichletCharacter LSeries Finset
 
-open scoped ComplexOrder
+open scoped ComplexOrder LSeries.notation ArithmeticFunction.zeta
 
 namespace SiegelThmLib
 
 /-- Value of a character of lower level after `changeLevel`, at a natural number. -/
-lemma changeLevel_natCast {M L : ℕ} (h : M ∣ L) (χ : DirichletCharacter ℂ M) (n : ℕ) :
-    changeLevel h χ (n : ZMod L) = if n.Coprime L then χ n else 0 := by
+lemma changeLevel_natCast {M K : ℕ} (h : M ∣ K) (χ : DirichletCharacter ℂ M) (n : ℕ) :
+    changeLevel h χ (n : ZMod K) = if n.Coprime K then χ n else 0 := by
   split_ifs with hc
-  · have hu : IsUnit (n : ZMod L) := (ZMod.isUnit_iff_coprime n L).mpr hc
+  · have hu : IsUnit (n : ZMod K) := (ZMod.isUnit_iff_coprime n K).mpr hc
     have := changeLevel_eq_cast_of_dvd χ h hu.unit
     simp only [IsUnit.unit_spec] at this
     rw [this, ZMod.cast_natCast h]
@@ -123,7 +123,7 @@ lemma coeff_one (χ₁ : DirichletCharacter ℂ N₁) (χ₂ : DirichletCharacte
   (isMultiplicative_coeff χ₁ χ₂).map_one
 
 /-- `(χ_b * ψ)(p^j) = ∑ χ_b(p)^t ψ(p)^{j-t}` with `ψ(p) = χ_b(p) χ_c(p)`. -/
-lemma XX_prime_pow {M L : ℕ} (χb : DirichletCharacter ℂ M) (ψ : DirichletCharacter ℂ L)
+lemma XX_prime_pow {M K : ℕ} (χb : DirichletCharacter ℂ M) (ψ : DirichletCharacter ℂ K)
     {p : ℕ} (hp : p.Prime) (j : ℕ) :
     (X χb * X ψ) (p ^ j) = ∑ t ∈ range (j + 1), χb p ^ t * ψ p ^ (j - t) := by
   rw [mul_apply_prime_pow _ _ hp]
@@ -143,7 +143,7 @@ lemma coeff_prime_pow_nonneg {χ₁ : DirichletCharacter ℂ N₁} {χ₂ : Diri
     have := local_nonneg hx hcase (k - i)
     simpa only [mul_comm (χ₂ p) (χ₁ p)] using this
   · have hx' : χ₁ p = 0 ∨ χ₁ p = 1 ∨ (χ₁ p = -1 ∧ χ₂ p = -1) := by
-      rcases hx with h | h | h <;> rcases hy with h' | h' | h' <;> norm_num [h, h'] at hcase ⊢
+      rcases hx with h | h | h <;> rcases hy with h' | h' | h' <;> (try norm_num [h, h'] at hcase) <;> (try norm_num [h, h'])
     rw [coeff_eq', mul_apply_prime_pow _ _ hp]
     refine sum_nonneg fun i _ => mul_nonneg (zetaMul_nonneg h₂ _) ?_
     rw [XX_prime_pow _ _ hp, hψ]

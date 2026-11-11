@@ -63,7 +63,7 @@ lemma prod_one_sub_inv_ge {η : ℝ} (hη : 0 < η) :
     simp only [hg]
     have : (0 : ℝ) ≤ (p : ℝ) ^ (-η) := Real.rpow_nonneg (Nat.cast_nonneg p) _
     split_ifs <;> positivity
-  have h1 := Finset.prod_le_prod hg0 hle
+  have h1 := Finset.prod_le_prod₀ hg0 hle
   have h2 : ∏ p ∈ n.primeFactors, g p =
       (∏ p ∈ n.primeFactors, (if p < P then (1 / 2 : ℝ) else 1)) *
         (∏ p ∈ n.primeFactors, (p : ℝ)) ^ (-η) := by
@@ -146,18 +146,18 @@ lemma equiv_case {N₁ N : ℕ} [NeZero N₁] [NeZero N] {χ₁ : DirichletChara
     Finset.prod_nonneg fun p hp => one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp)
   have hlow : ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) ≤
       ∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ₁ p * (p : ℂ) ^ (-(1 : ℂ))‖ :=
-    Finset.prod_le_prod (fun p hp => one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp))
+    Finset.prod_le_prod₀ (fun p hp => one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp))
       (fun p hp => norm_euler_factor_ge χ₁ (Nat.prime_of_mem_primeFactors hp))
   have hup : (∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ p * (p : ℂ) ^ (-(1 : ℂ))‖) *
       ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) ≤ 1 := by
     have h1 : (∏ p ∈ (N₁ * N).primeFactors, ‖1 - χ p * (p : ℂ) ^ (-(1 : ℂ))‖) ≤
         ∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹) :=
-      Finset.prod_le_prod (fun p _ => norm_nonneg _)
+      Finset.prod_le_prod₀ (fun p _ => norm_nonneg _)
         (fun p hp => norm_euler_factor_le χ (Nat.prime_of_mem_primeFactors hp))
     have h2 : (∏ p ∈ (N₁ * N).primeFactors, (1 + (p : ℝ)⁻¹)) *
         ∏ p ∈ (N₁ * N).primeFactors, (1 - (p : ℝ)⁻¹) ≤ 1 := by
       rw [← Finset.prod_mul_distrib]
-      refine Finset.prod_le_one (fun p hp => ?_) (fun p hp => ?_)
+      refine Finset.prod_le_one₀ (fun p hp => ?_) (fun p hp => ?_)
       · have := one_sub_inv_nonneg (Nat.prime_of_mem_primeFactors hp)
         have : (0 : ℝ) ≤ (p : ℝ)⁻¹ := inv_nonneg.mpr (Nat.cast_nonneg p)
         positivity

@@ -22,7 +22,7 @@ public import Mathlib.Analysis.Calculus.Deriv.ZPow
 
 open Complex DirichletCharacter Metric Set Filter Topology LSeries
 
-open scoped ComplexOrder Nat
+open scoped ComplexOrder LSeries.notation Nat
 
 namespace SiegelThmLib
 
@@ -172,7 +172,7 @@ lemma norm_iteratedDeriv_G_le (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ
 
 lemma two_mem_abscissa (χ₁ : DirichletCharacter ℂ N₁) (χ₂ : DirichletCharacter ℂ N₂) :
     abscissaOfAbsConv ↗(coeff χ₁ χ₂) < ((2 : ℝ) : EReal) :=
-  (abscissa_coeff_le χ₁ χ₂).trans_lt (by norm_cast; norm_num)
+  (abscissa_coeff_le χ₁ χ₂).trans_lt (EReal.coe_lt_coe_iff.mpr (by norm_num))
 
 lemma iteratedDeriv_inv_sub_one (n : ℕ) :
     iteratedDeriv n (fun s : ℂ => (s - 1)⁻¹) 2 = (-1) ^ n * n ! := by

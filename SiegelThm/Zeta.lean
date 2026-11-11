@@ -24,16 +24,15 @@ namespace SiegelThmLib
 /-- `J` of a real-valued function at a real point is real. -/
 lemma J_ofReal (g : ℝ → ℝ) (β : ℝ) :
     J (fun t => (g t : ℂ)) β = ((∫ t in Ioi (1 : ℝ), g t * t ^ (-(β + 1)) : ℝ) : ℂ) := by
-  rw [J, ← integral_ofReal]
+  rw [J, ← integral_complex_ofReal]
   refine setIntegral_congr_fun measurableSet_Ioi fun t ht => ?_
   have ht' : (0 : ℝ) ≤ t := le_of_lt (lt_trans one_pos ht)
-  simp only
   rw [ofReal_mul, ofReal_cpow ht']
   push_cast
   try ring
 
 /-- `fract`, as a complex function. -/
-noncomputable abbrev fr (t : ℝ) : ℂ := (Int.fract t : ℂ)
+noncomputable abbrev fr (t : ℝ) : ℂ := ((Int.fract t : ℝ) : ℂ)
 
 lemma measurable_fr : Measurable fr := measurable_ofReal.comp measurable_fract
 
@@ -89,7 +88,6 @@ lemma LSeries_one_eq {s : ℂ} (hs : 1 < s.re) : LSeries 1 s = 1 / (s - 1) + Hz 
       have h := cpow_add (x := (t : ℂ)) (-(s + 1)) 1 (by exact_mod_cast ht0.ne')
       rw [show -(s + 1) + 1 = -s by ring, cpow_one] at h
       rw [h, mul_comm]
-    simp only
     rw [hsum, hpow, fr]
     push_cast
     ring

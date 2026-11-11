@@ -39,9 +39,9 @@ lemma sum_range_shift_eq_zero {χ : DirichletCharacter ℂ N} (hχ : χ ≠ 1) (
       ∑ k ∈ range N, (fun x : ZMod N => χ ((a : ZMod N) + x)) (k : ZMod N) := by
     refine Finset.sum_congr rfl fun k _ => ?_
     simp only [Nat.cast_add]
-  rw [h1, sum_range_natCast_eq_sum_univ]
-  exact (Equiv.sum_comp (Equiv.addLeft (a : ZMod N)) (fun x => χ x)).trans
-    (MulChar.sum_eq_zero_of_ne_one hχ)
+  exact h1.trans ((sum_range_natCast_eq_sum_univ (fun x : ZMod N => χ ((a : ZMod N) + x))).trans
+    ((Equiv.sum_comp (Equiv.addLeft (a : ZMod N)) (fun x => χ x)).trans
+      (MulChar.sum_eq_zero_of_ne_one hχ)))
 
 /-- Partial sums as a sum over `range`. -/
 lemma sum_Icc_eq_sum_range (χ : DirichletCharacter ℂ N) (M : ℕ) :

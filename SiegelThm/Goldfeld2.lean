@@ -20,7 +20,7 @@ For `7/8 ≤ β < 1` with `Re F(β) ≤ 0`:
 
 open Complex DirichletCharacter Metric Set Filter Topology LSeries Finset
 
-open scoped ComplexOrder Nat
+open scoped ComplexOrder LSeries.notation Nat
 
 namespace SiegelThmLib
 
@@ -37,10 +37,11 @@ lemma taylor_term_eq (β : ℝ) (n : ℕ) :
   have hsq : ((-1 : ℂ) ^ n) * (-1) ^ n = 1 := by
     rw [← mul_pow]; norm_num
   have hb : (β : ℂ) - 2 = -(((2 - β : ℝ)) : ℂ) := by push_cast; ring
+  have hinv : (n ! : ℂ)⁻¹ * (n ! : ℂ) = 1 := inv_mul_cancel₀ hfac
   rw [hb, neg_pow, smul_eq_mul, smul_eq_mul]
   push_cast
-  field_simp
-  linear_combination (-(P χ₁ χ₂ 1) * (2 - (β : ℂ)) ^ n * (n ! : ℂ)) * hsq
+  linear_combination (-(P χ₁ χ₂ 1) * (2 - (β : ℂ)) ^ n * (n ! : ℂ)⁻¹ * (n ! : ℂ)) * hsq +
+    (-(P χ₁ χ₂ 1) * (2 - (β : ℂ)) ^ n) * hinv
 
 /-- Norm of the Taylor terms. -/
 lemma norm_taylor_term_le (hχ₁ : χ₁ ≠ 1) (hχ₂ : χ₂ ≠ 1) (hψ : prodChar χ₁ χ₂ ≠ 1)

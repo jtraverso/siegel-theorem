@@ -84,8 +84,8 @@ lemma J_eq_mellin (g : ℝ → ℂ) (s : ℂ) : J g s = mellin ((Ioi (1 : ℝ)).
       (Ioi (1 : ℝ)).indicator (fun t => (t : ℂ) ^ (-s - 1) • g t) := by
     funext t
     exact (indicator_smul_apply (Ioi (1 : ℝ)) (fun t : ℝ => (t : ℂ) ^ (-s - 1)) g t).symm
-  rw [h1, setIntegral_indicator measurableSet_Ioi, Ioi_inter_Ioi, sup_eq_max,
-    max_eq_right zero_le_one]
+  rw [h1, setIntegral_indicator measurableSet_Ioi, Ioi_inter_Ioi,
+    sup_of_le_right zero_le_one]
   refine setIntegral_congr_fun measurableSet_Ioi fun t _ => ?_
   rw [smul_eq_mul, show -s - 1 = -(s + 1) by ring, mul_comm]
 
@@ -115,7 +115,7 @@ lemma differentiableAt_J {g : ℝ → ℂ} (hg : Measurable g) {B : ℝ} (hB : �
         simp only [mem_Ioi, not_lt]; exact ht.2.le
       simp [this]
   rw [hJ]
-  exact hmel.comp s differentiableAt_neg
+  exact hmel.comp s differentiableAt_id.neg
 
 /-! ### Partial sums of characters -/
 
